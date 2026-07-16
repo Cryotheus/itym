@@ -1,0 +1,15 @@
+[package]
+name = "itym"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+itym_bivec = { path = "../bivec", optional = true, }
+itym_frovec = { path = "../frovec", optional = true, }
+itym_integral = { path = "../integral", optional = true, }
+
+[features]
+default = ["bivec", "frovec", "integral"]
+bivec = ["dep:itym_bivec"]
+frovec = ["dep:itym_frovec"]
+integral = ["dep:itym_integral"]
