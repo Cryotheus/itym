@@ -4,7 +4,7 @@ version = "0.1.1"
 edition = "2024"
 rust-version = "1.95.0"
 
-description = "Specialized tools for your special situations."
+description = "Dependency of other Itym crates."
 categories = ["no-std::no-alloc"]
 # No keywords.
 exclude = ["description.md"]
