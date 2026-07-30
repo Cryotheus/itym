@@ -50,6 +50,10 @@ impl<T> SlotWriter<T> {
 		self.slot
 	}
 
+	pub const fn position(&self) -> usize {
+		self.cursor
+	}
+
 	/// Infallible version of [`Self::try_seek`].
 	pub const fn seek(&mut self, offset: isize) {
 		self.cursor = self.cursor.saturating_add_signed(offset);

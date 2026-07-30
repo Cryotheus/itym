@@ -1,7 +1,6 @@
 //! # Itym: Slot<T>
 //! Byte-array supporting type state and `const` mutation.
-#![no_std]
-extern crate alloc;
+#![cfg_attr(not(feature = "std"), no_std)]
 
 use crate::convert::{RawSlotRef, SlotVisPub};
 use crate::writer::SlotWriter;
