@@ -1,6 +1,5 @@
 #![no_std]
 
-//! # Itym: assert!
 //! Assertion and hint macros usable in `const` blocks and functions.
 //!
 //! ```rust

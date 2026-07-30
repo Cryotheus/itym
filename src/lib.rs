@@ -1,16 +1,15 @@
 //! # Itym
 //! Specialized collections, macros, and monads for your special situations.
 //!
-//! Explore the crate's modules to learn more.
-#![allow(unexpected_cfgs)]
+//! Explore the crate's re-exports / modules to learn more.
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 //TODO: bake descriptions?
 macro_rules! export {
 	( $($og:ident as $rename:ident if $feature:literal),+ $(,)? ) => {
-		$(#[doc = include_str!(concat!("../crates/", stringify!($rename), "/description.md"))]
-		#[cfg(feature = $feature)]
-		pub mod $rename { pub use $og::*; })+
+		$(#[cfg(feature = $feature)]
+		#[doc(inline)]
+		pub use $og as $rename;)+
 	};
 }
 

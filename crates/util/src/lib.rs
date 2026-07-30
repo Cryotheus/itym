@@ -1,6 +1,5 @@
-#![no_std]
-//! # Itym: Utilities
 //! Dependency of other Itym crates.
+#![no_std]
 
 /// Union transmute.
 /// Fully unchecked version of [`core::mem::transmute`].

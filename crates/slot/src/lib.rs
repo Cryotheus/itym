@@ -1,4 +1,3 @@
-//! # Itym: Slot<T>
 //! Byte-array supporting type state and `const` mutation.
 #![cfg_attr(not(feature = "std"), no_std)]
 
