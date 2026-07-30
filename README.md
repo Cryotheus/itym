@@ -1,4 +1,4 @@
-# Ity
+# Itym
 
 Specialized collections, macros, and monads for your special situations.
 
