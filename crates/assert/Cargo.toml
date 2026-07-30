@@ -1,0 +1,23 @@
+[package]
+name = "itym_assert"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95.0"
+
+description = "Offers `const_assert!` and unsafe hint macros."
+categories = ["no-std::no-alloc", "development-tools::debugging", "rust-patterns"]
+keywords = ["const", "const_assert", "no_std"]
+
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+# No depedependencies :D
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = [
+	"-Zunstable-options",
+	"--generate-link-to-definition",
+	"--generate-macro-expansion",
+]

@@ -1,0 +1,23 @@
+[package]
+name = "itym_str"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+itym_assert = { path = "../assert" }
+itym_util = { path = "../util" }
+itym_slot = { path = "../slot" }
+
+borsh = { workspace = true, features = [], optional = true }
+serde = { workspace = true, features = [], optional = true }
+
+[features]
+default = ["std"]
+alloc = []
+std = ["alloc"]
+
+# Enforce `repr(C)` on most types.
+c_abi = []
+
+borsh = ["dep:borsh"]
+serde = ["dep:serde"]

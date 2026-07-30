@@ -26,9 +26,7 @@ impl<T: Display> Display for Cyclic<T> {
 }
 
 macro_rules! impl_cyclic {
-	(
-		$($ty:ty)+
-	) => {
+	( $($ty:ty)+ ) => {
 		$(
 		impl Cyclic<$ty> {
 			const MIDPOINT: $ty = <$ty>::MIN.midpoint(<$ty>::MAX);
@@ -136,10 +134,7 @@ impl_cyclic!(u8 u16 u32 u64 u128 usize);
 // #[cfg(test)]
 #[test]
 fn test() {
-	type Bruh = u32;
-
-	// dbg!(Cyclic::<Bruh>::MIDPOINT);
-	// dbg!(Cyclic::<Bruh>::MIDPOINT_HI);
+	type Bruh = u8;
 
 	// for n in (Cyclic::<Bruh>::MIDPOINT - 2)..(Cyclic::<Bruh>::MIDPOINT + 2) {
 	// 	let cyclic = Cyclic::new(n);
@@ -148,24 +143,20 @@ fn test() {
 	// 	println!("{n} => {bias:?}");
 	// }
 
-	// println!("\nMidpoint analysis");
+	// let range = (Cyclic::<Bruh>::MIDPOINT - 1)..=(Cyclic::<Bruh>::MIDPOINT + 2);
+	let range = <Bruh>::MIN..=<Bruh>::MAX;
 
-	for a in (Cyclic::<Bruh>::MIDPOINT - 1)..=(Cyclic::<Bruh>::MIDPOINT + 2) {
-		let ref ac = Cyclic::new(a);
+	for alfa in range.clone() {
+		let ref alfa_cyclic = Cyclic::new(alfa);
 
-		for b in (Cyclic::<Bruh>::MIDPOINT - 1)..=(Cyclic::<Bruh>::MIDPOINT + 2) {
-			let ref bc = Cyclic::new(b);
-			let cmp = ac.cmp(bc);
-			let cmp_rev = bc.cmp(ac);
+		for bravo in range.clone() {
+			let ref bravo_cyclic = Cyclic::new(bravo);
+			let cmp = alfa_cyclic.cmp(bravo_cyclic);
+			let cmp_rev = bravo_cyclic.cmp(alfa_cyclic);
 
-			// println!("{ac} vs {bc} => {cmp:?}");
 			assert_eq!(cmp, cmp_rev.reverse());
 		}
-
-		// print!("\n");
 	}
-
-	// println!("Border analysis");
 
 	for a in Bruh::MIN..=(Bruh::MIN + 2) {
 		let ref ac = Cyclic::new(a);
@@ -175,11 +166,8 @@ fn test() {
 			let cmp = ac.cmp(bc);
 			let cmp_rev = bc.cmp(ac);
 
-			// println!("{ac} vs {bc} => {cmp:?}");
 			assert_eq!(cmp, cmp_rev.reverse());
 		}
-
-		// print!("\n");
 	}
 
 	for a in (Bruh::MAX - 2)..=Bruh::MAX {
@@ -190,10 +178,7 @@ fn test() {
 			let cmp = ac.cmp(bc);
 			let cmp_rev = bc.cmp(ac);
 
-			// println!("{ac} vs {bc} => {cmp:?}");
 			assert_eq!(cmp, cmp_rev.reverse());
 		}
-
-		// print!("\n");
 	}
 }

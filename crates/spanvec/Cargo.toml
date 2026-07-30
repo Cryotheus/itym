@@ -1,8 +1,8 @@
 [package]
-name = "spanvec"
+name = "itym_spanvec"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-num.workspace = true
-thiserror.workspace = true
+num = { workspace = true, features = ["std"] }
+thiserror = { workspace = true, features = ["std"] }

@@ -1,10 +1,33 @@
-//! See [`Couple`].
+//! See [`UniqueCouple`].
+
+use std::ops::{Deref, Index};
+
+const fn byte_occupancy(max_value: u128) -> usize {
+	let bits = max_value.ilog2() + 1;
+	let bytes = bits.div_ceil(8);
+
+	bytes as usize
+}
+
+/// A pair of two distinct values of type `T`, or a single value of `T`.
+#[derive(Debug, Clone, Copy, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub struct OptionalCouple<T>(T);
+
+impl<T> OptionalCouple<T> {
+	pub fn as_raw(&self) -> &T {
+		&self.0
+	}
+
+	pub fn into_raw(self) -> T {
+		self.0
+	}
+}
 
 /// A pair of two distinct values of type `T`.
 #[derive(Debug, Clone, Copy, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub struct Couple<T>(T);
+pub struct UniqueCouple<T>(T);
 
-impl<T> Couple<T> {
+impl<T> UniqueCouple<T> {
 	pub fn as_raw(&self) -> &T {
 		&self.0
 	}
@@ -27,7 +50,54 @@ pub enum CouplingError {
 }
 
 pub trait Coupling {
-	type Fit;
+	type Couple;
+}
+
+impl Coupling for (u8, Option<u8>) {
+	type Couple = OptionalCouple<u16>;
+}
+
+impl Coupling for (u16, Option<u16>) {
+	type Couple = OptionalCouple<u32>;
+}
+
+impl Coupling for (u32, Option<u32>) {
+	type Couple = OptionalCouple<u64>;
+}
+
+impl Coupling for (u64, Option<u64>) {
+	type Couple = OptionalCouple<u64>;
+}
+
+impl Coupling for [u8; 2] {
+	type Couple = UniqueCouple<u16>;
+}
+
+impl Coupling for [u16; 2] {
+	type Couple = UniqueCouple<u32>;
+}
+
+impl Coupling for [u32; 2] {
+	type Couple = UniqueCouple<u64>;
+}
+
+impl Coupling for [u64; 2] {
+	type Couple = UniqueCouple<u128>;
+}
+
+#[cfg(target_pointer_width = "16")]
+impl Coupling for [usize; 2] {
+	type Couple = UniqueCouple<u32>;
+}
+
+#[cfg(target_pointer_width = "32")]
+impl Coupling for [usize; 2] {
+	type Couple = UniqueCouple<u64>;
+}
+
+#[cfg(target_pointer_width = "64")]
+impl Coupling for [usize; 2] {
+	type Couple = UniqueCouple<u128>;
 }
 
 macro_rules! eval {
@@ -58,7 +128,10 @@ macro_rules! eval {
 			]
 		};
 
+		#[allow(unused)]
 		pub const $max_x: $ty = $eval[0];
+
+		#[allow(unused)]
 		pub const $max_y: $ty = $eval[1];
 		)+
 	};
@@ -72,21 +145,20 @@ macro_rules! gen_seq {
 	) => {
 		$(
 		pub(crate) mod $module {
-			use super::{Couple, CouplingError};
+			use super::{CouplingError, UniqueCouple};
 
-			pub const fn seq(x: $ty) -> $ty {
+			#[inline(always)]
+			pub(super) const fn seq(x: $ty) -> $ty {
 				if x % 2 == 0 { (x / 2) * (x + 1) } else { x * ((x + 1) / 2) }
 			}
 
-			pub const fn seq_fast(n: $ty) -> $ty {
-				n * (n + 1) / 2
-			}
-
-			pub const fn seq_inv(y: $ty) -> $ty {
+			#[inline(always)]
+			pub(super) const fn seq_inv(y: $ty) -> $ty {
 				((8 * y + 1).isqrt() - 1) / 2
 			}
 
-			pub const fn seq_checked(x: $ty) -> Option<$ty> {
+			#[inline]
+			pub(super) const fn seq_checked(x: $ty) -> Option<$ty> {
 				let Some(plus_one) = x.checked_add(1) else { return None };
 
 				if x % 2 == 0 {
@@ -96,14 +168,8 @@ macro_rules! gen_seq {
 				}
 			}
 
-			pub const fn seq_fast_checked(x: $ty) -> Option<$ty> {
-				let Some(y) = x.checked_add(1) else { return None };
-				let Some(y) = x.checked_mul(y) else { return None };
-
-				Some(y / 2)
-			}
-
-			pub const fn seq_inv_checked(y: $ty) -> Option<$ty> {
+			#[inline]
+			pub(super) const fn seq_inv_checked(y: $ty) -> Option<$ty> {
 				let Some(y) = y.checked_mul(8) else { return None };
 				let Some(y) = y.checked_add(1) else { return None };
 
@@ -114,14 +180,16 @@ macro_rules! gen_seq {
 				for $ty;
 
 				const SAFE, MAX_X, MAX_Y = seq_checked;
-				const FAST, MAX_FAST_X, MAX_FAST_Y = seq_fast_checked;
 				const INVERSE, INVERSE_MAX_Y, INVERSE_MAX_X = seq_inv_checked;
 			}
 
-			impl Couple<$ty> {
+			impl UniqueCouple<$ty> {
 				pub const MAX: Self = Self(MAX_Y);
 				pub const MIN: Self = Self(0);
 
+				/// Creates a new coupling of unique values.
+				/// # Errors
+				/// Returns an error if `alfa == bravo` or the computation overflows.
 				pub const fn new(mut alfa: $ty, mut bravo: $ty) -> Result<Self, CouplingError> {
 					if alfa > bravo {
 						core::mem::swap(&mut alfa, &mut bravo);
@@ -134,6 +202,35 @@ macro_rules! gen_seq {
 
 					Ok(Self(pack))
 				}
+
+				/// # Safety
+				/// Ordering `greater > lesser` must be upheld.
+				/// Resulting coupled value must not overflow.
+				#[inline(always)]
+				pub const unsafe fn new_unchecked(lesser: $ty, greater: $ty) -> Self {
+					Self(seq(greater) + lesser)
+				}
+
+				#[doc(alias("uncouple", "unpack"))]
+				#[inline]
+				pub const fn get(self) -> [$ty; 2] {
+					let greater = seq_inv(self.0);
+					let lesser = self.0 - greater;
+
+					[lesser, greater]
+				}
+
+				#[doc(alias("get_max"))]
+				#[inline]
+				pub const fn get_greater(self) -> $ty {
+					seq_inv(self.0)
+				}
+
+				#[doc(alias("get_min"))]
+				#[inline]
+				pub const fn get_lesser(self) -> $ty {
+					self.0 - seq_inv(self.0)
+				}
 			}
 
 			#[test]
@@ -144,13 +241,19 @@ macro_rules! gen_seq {
 				assert_eq!(seq(MAX_X), MAX_Y, "[Safe] Maxes");
 				assert_eq!(seq_checked(0), Some(seq(0)), "[Safe] Zeroes");
 
-				//same checks for the fast variant
-				assert_eq!(seq_fast_checked(MAX_FAST_X + 1), None, "[Fast] Overflow");
-				assert_eq!(seq_fast_checked(MAX_FAST_X), Some(MAX_FAST_Y), "[Fast] Maxes (checked)");
-				assert_eq!(seq_fast(MAX_FAST_X), MAX_FAST_Y, "[Fast] Maxes");
-				assert_eq!(seq_fast_checked(0), Some(seq_fast(0)), "[Fast] Zeroes");
+				println!("{} f({MAX_X}) = {MAX_Y}", stringify!($ty));
 
-				// if <$ty>::MAX.ilog2() > 32 $(|| $skip)? { return; }
+				let ideal = UniqueCouple::<u128>::new(<$ty>::MAX as u128 - 1, <$ty>::MAX as u128);
+
+				if let Ok(ideal) = ideal {
+					println!("\t{ideal:?}");
+					println!("\tbytes = {}", super::byte_occupancy(ideal.0 as _));
+					println!("\t{}", ideal.0 + <$ty>::MAX as u128);
+					println!("\tbytes = {}", super::byte_occupancy(ideal.0 + <$ty>::MAX as u128));
+				}
+
+				print!("\n");
+
 				$(if $skip { return; })?
 
 				for x in 0..INVERSE_MAX_X {
@@ -174,31 +277,54 @@ gen_seq! {
 	usize true usize,
 }
 
-#[cfg(test)]
-// #[test]
-fn test() {
-	dbg!(u16::MAX_X);
-	dbg!(u16::MAX_Y);
+macro_rules! gen_signed {
+	(
+		$($i:ty = $u:ty),+
+		$(,)?
+	) => {
+		$(
+		impl UniqueCouple<$i> {
 
-	for x in 0..10 {
-		let y = u16::seq(x);
-
-		println!("x {x} = y {y}");
-	}
-
-	print!("\n");
-
-	for y in 0..10 {
-		let x = u16::seq_inv(y);
-
-		println!("y {y} = x {x}");
-	}
-
-	for alfa in 0..5 {
-		for bravo in 0..5 {
-			let couple = Couple::<u32>::new(alfa, bravo);
-
-			println!("{alfa}, {bravo} => {couple:?}");
 		}
-	}
+		)+
+	};
 }
+
+gen_signed! {
+	i8 = u8,
+	i16 = u16,
+	i32 = u32,
+	i64 = u64,
+	i128 = u128,
+	isize = usize,
+}
+
+//
+//
+// MAX_X u8 22
+// MAX_Y u8 253
+
+//
+//
+// MAX_X u16 361
+// MAX_Y u16 65341
+
+//
+//
+// MAX_X u32 92681
+// MAX_Y u32 4294930221
+
+//
+//
+// MAX_X u64 6074000999
+// MAX_Y u64 18446744070963499500
+
+//
+//
+// MAX_X u128 26087635650665564424
+// MAX_Y u128 340282366920938463458179421426580008100
+
+//
+//
+// MAX_X usize 6074000999
+// MAX_Y usize 18446744070963499500

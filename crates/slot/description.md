@@ -1,0 +1,1 @@
+Byte-array supporting type state and `const` mutation.

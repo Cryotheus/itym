@@ -1,9 +1,53 @@
+[package]
+name = "itym"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95.0"
+
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+itym_assert = { path = "crates/assert", optional = true, }
+itym_slot = { path = "crates/slot", optional = true, }
+itym_util = { path = "crates/util", optional = true, }
+
+[features]
+default = ["std"]
+
+itym_assert = ["dep:itym_assert"]
+itym_slot = ["dep:itym_slot", "itym_assert", "itym_util", "bytemuck"]
+itym_util = ["dep:itym_util"]
+
+alloc = ["itym_slot?/alloc"]
+std = ["alloc", "itym_slot?/std"]
+
+borsh = ["itym_slot?/borsh"]
+bytemuck = []
+serde = ["itym_slot?/serde"]
+
 [workspace]
 members = ["crates/*"]
 resolver = "3"
 
+[workspace.package]
+edition = "2024"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/cryotheus/itym"
+rust-version = "1.95.0"
+
 [workspace.dependencies]
-borsh = { version = "1.7.0", default-features = false }
-num = "0.4.3"
-serde = { version = "1.0.228", default-features = false }
-thiserror = "2.0.18"
+borsh = { version = "1.8.0", default-features = false }
+bytemuck = { version = "1.25.2", default-features = false }
+num = { version = "0.4.3", default-features = false }
+serde = { version = "1.0.229", default-features = false }
+thiserror = { version = "2.0.19", default-features = false }
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = [
+	"-Zunstable-options",
+	"--generate-link-to-definition",
+	"--generate-macro-expansion",
+]
+

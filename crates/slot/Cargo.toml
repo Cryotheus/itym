@@ -1,0 +1,39 @@
+[package]
+name = "itym_slot"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95.0"
+
+description = "Byte-array supporting type state and `const` mutation."
+categories = ["no-std::no-alloc", "data-structures"]
+keywords = ["array", "const", "inline", "no_std", "pod"]
+
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+itym_assert = { path = "../assert" }
+itym_util = { path = "../util" }
+
+borsh = { workspace = true, optional = true }
+serde = { workspace = true, optional = true }
+bytemuck = { workspace = true, features = ["min_const_generics"] }
+
+[features]
+default = ["std"]
+
+# Language features
+alloc = []
+std = ["alloc"]
+
+# Dependency features
+borsh = ["dep:borsh"]
+serde = ["dep:serde"]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = [
+	"-Zunstable-options",
+	"--generate-link-to-definition",
+	"--generate-macro-expansion",
+]
