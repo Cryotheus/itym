@@ -37,9 +37,9 @@ repository = "https://github.com/cryotheus/itym"
 rust-version = "1.95.0"
 
 [workspace.dependencies]
-itym_assert = { path = "crates/assert", version = "0.1.0" }
-itym_slot = { path = "crates/slot" }
-itym_util = { path = "crates/util", version = "0.1.0" }
+itym_assert = { path = "crates/assert", version = "0.1.0", default-features = false }
+itym_slot = { path = "crates/slot", default-features = false }
+itym_util = { path = "crates/util", version = "0.1.0", default-features = false }
 
 borsh = { version = "1.8.0", default-features = false }
 bytemuck = { version = "1.25.2", default-features = false }
