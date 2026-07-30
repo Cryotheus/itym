@@ -7,6 +7,7 @@ rust-version = "1.95.0"
 description = "Byte-array supporting type state and `const` mutation."
 categories = ["no-std::no-alloc", "data-structures"]
 keywords = ["array", "const", "inline", "no_std", "pod"]
+exclude = ["description.md"]
 
 license.workspace = true
 repository.workspace = true
