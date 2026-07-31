@@ -41,14 +41,14 @@ trait Sealed {}
 
 /// Prevents usage of [`as_slot_ref`] and [`as_slot_mut`].
 #[derive(Debug)]
-pub struct SlotVisPriv(());
+pub enum SlotVisPriv {}
 
 impl Sealed for SlotVisPriv {}
 impl SlotVisibility for SlotVisPriv {}
 
 /// Allows usage of [`as_slot_ref`] and [`as_slot_mut`].
 #[derive(Debug)]
-pub struct SlotVisPub(());
+pub enum SlotVisPub {}
 
 impl Sealed for SlotVisPub {}
 impl SlotVisibility for SlotVisPub {}

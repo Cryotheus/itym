@@ -1,6 +1,6 @@
 [package]
 name = "itym_slot"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.95.0"
 
@@ -14,6 +14,7 @@ repository.workspace = true
 
 [dependencies]
 itym_assert.workspace = true
+itym_ts.workspace = true
 itym_util.workspace = true
 
 borsh = { workspace = true, optional = true }

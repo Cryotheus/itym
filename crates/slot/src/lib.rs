@@ -16,37 +16,37 @@ use itym_util::utransmute;
 
 macro_rules! size {
 	(-: $lhs:ty, $rhs:ty) => {
-		const { size_of::<$lhs>().strict_sub(size_of::<$rhs>()) }
+		const { ::core::mem::size_of::<$lhs>().strict_sub(::core::mem::size_of::<$rhs>()) }
 	};
 
 	(+: $lhs:ty, $rhs:ty) => {
-		const { size_of::<$lhs>().strict_add(size_of::<$rhs>()) }
+		const { ::core::mem::size_of::<$lhs>().strict_add(::core::mem::size_of::<$rhs>()) }
 	};
 
 	(>: $lhs:ty, $rhs:ty) => {
-		const { size_of::<$lhs>() > size_of::<$rhs>() }
+		const { ::core::mem::size_of::<$lhs>() > ::core::mem::size_of::<$rhs>() }
 	};
 
 	(>=: $lhs:ty, $rhs:ty) => {
-		const { size_of::<$lhs>() >= size_of::<$rhs>() }
+		const { ::core::mem::size_of::<$lhs>() >= ::core::mem::size_of::<$rhs>() }
 	};
 
 	(!=: $lhs:ty, $rhs:ty) => {
-		const { size_of::<$lhs>() != size_of::<$rhs>() }
+		const { ::core::mem::size_of::<$lhs>() != ::core::mem::size_of::<$rhs>() }
 	};
 
 	(==: $lhs:ty, $rhs:ty) => {
-		const { size_of::<$lhs>() == size_of::<$rhs>() }
+		const { ::core::mem::size_of::<$lhs>() == ::core::mem::size_of::<$rhs>() }
 	};
 
 	($ty:ty) => {
-		const { size_of::<$ty>() }
+		const { ::core::mem::size_of::<$ty>() }
 	};
 }
 
 macro_rules! size_eq {
-	($lhs:ty, $rhs:ty) => {
-		size!(==: $lhs, $rhs)
+	($lhs:ty $(, $tail:ty)+ $(,)?) => {
+		const { $(::core::mem::size_of::<$lhs>() == ::core::mem::size_of::<$tail>())&&+ }
 	};
 }
 
@@ -58,6 +58,7 @@ macro_rules! size_ne {
 
 pub mod convert;
 mod impls;
+pub mod refine;
 pub mod writer;
 
 /// For use of a [`Pod`] as the buffer of a [`Slot`].

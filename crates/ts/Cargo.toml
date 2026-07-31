@@ -1,0 +1,21 @@
+[package]
+name = "itym_ts"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95.0"
+
+description = "Types for using the type state design pattern."
+categories = ["no-std::no-alloc", "rust-patterns"]
+keywords = ["typestate"]
+
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+
+[features]
+default = []
+
+# Nightly toolchain only
+f16 = []
+f128 = []

@@ -4,3 +4,4 @@
 #![no_std]
 
 pub mod array_str;
+pub mod slot_str;
