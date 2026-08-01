@@ -12,16 +12,16 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-itym_assert = { workspace = true, version = "0.1.1", optional = true, }
-itym_slot = { workspace = true, version = "0.1.1", optional = true, }
-itym_ts = { workspace = true, version = "0.1.0", optional = true, }
-itym_util = { workspace = true, version = "0.1.1", optional = true, }
+itym_assert = { path = "crates/assert", version = "0.1.1", default-features = false, optional = true, }
+itym_slot = { version = "0.1.1", default-features = false, optional = true, }
+itym_ts = { path = "crates/ts", version = "0.1.0", default-features = false, optional = true, }
+itym_util = { path = "crates/util", version = "0.1.1", default-features = false, optional = true, }
 
 [features]
 default = ["std"]
 
 itym_assert = ["dep:itym_assert"]
-itym_slot = ["dep:itym_slot", "itym_assert", "itym_util", "bytemuck"]
+itym_slot = ["dep:itym_slot", "itym_assert", "itym_util", "dep:itym_ts", "bytemuck"] # Developer burden: "itym_ts"
 itym_ts = ["dep:itym_ts"]
 itym_util = ["dep:itym_util"]
 
