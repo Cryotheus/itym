@@ -15,6 +15,10 @@ repository.workspace = true
 [dependencies]
 # No depedependencies :D
 
+[features]
+default = []
+shorting = []
+
 [package.metadata.docs.rs]
 all-features = true
 rustdoc-args = [

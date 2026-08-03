@@ -2,10 +2,17 @@
 name = "itym_str"
 version = "0.1.0"
 edition = "2024"
+rust-version = "1.95.0"
+
+description = "Fixed-capacity and fixed-length strings supporting const mutation."
+categories = ["no-std::no-alloc", "data-structures", "memory-management", "rust-patterns"]
+keywords = ["arraystr", "arraystring"]
+
+license.workspace = true
+repository.workspace = true
 
 [dependencies]
-itym_assert = { path = "../assert" }
-itym_util = { path = "../util" }
+itym_assert = { path = "../assert", features = ["shorting"] }
 itym_slot = { path = "../slot" }
 
 borsh = { workspace = true, features = [], optional = true }
@@ -13,11 +20,8 @@ serde = { workspace = true, features = [], optional = true }
 
 [features]
 default = ["std"]
-alloc = []
-std = ["alloc"]
+alloc = ["itym_slot/alloc"]
+std = ["alloc", "itym_slot/std"]
 
-# Enforce `repr(C)` on most types.
-c_abi = []
-
-borsh = ["dep:borsh"]
-serde = ["dep:serde"]
+borsh = ["dep:borsh", "itym_slot/borsh"]
+serde = ["dep:serde", "itym_slot/serde"]

@@ -1,1 +1,0 @@
-Fixed-capacity and length strings, string mutation at const using type state, and more.

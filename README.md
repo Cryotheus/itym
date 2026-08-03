@@ -20,6 +20,21 @@ unless doing so increases burden on:
 
 Exceptions are in place for crates which are nominally undesired.
 
+| Feature       | Purpose                                 |
+|---------------|-----------------------------------------|
+| `itym_assert` | Re-exports `itym_assert`                |
+| `itym_slot`   | Re-exports `itym_slot`                  |
+| `itym_ts`     | Re-exports `itym_ts`                    |
+| `itym_util`   | Re-exports `itym_util`                  |
+|               |                                         |
+| Rust          |                                         |
+| `alloc`       | Enable `liballoc` dependent features    |
+| `std`         | Enable `libstd` dependent features      |
+|               |                                         |
+| Crates (3p)   |                                         |
+| `borsh`       | `borsh` impls for enabled `itym` crates |
+| `serde`       | `serde` impls for enabled `itym` crates |
+
 ## Goals
 
 Incomplete and tentative list.

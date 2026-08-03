@@ -13,7 +13,7 @@ repository.workspace = true
 
 [dependencies]
 itym_assert = { path = "crates/assert", version = "0.1.1", default-features = false, optional = true, }
-itym_slot = { version = "0.1.1", default-features = false, optional = true, }
+itym_slot = { path = "crates/slot", default-features = false, optional = true, }
 itym_ts = { path = "crates/ts", version = "0.1.0", default-features = false, optional = true, }
 itym_util = { path = "crates/util", version = "0.1.1", default-features = false, optional = true, }
 
@@ -21,7 +21,7 @@ itym_util = { path = "crates/util", version = "0.1.1", default-features = false,
 default = ["std"]
 
 itym_assert = ["dep:itym_assert"]
-itym_slot = ["dep:itym_slot", "itym_assert", "itym_util", "dep:itym_ts", "bytemuck"] # Developer burden: "itym_ts"
+itym_slot = ["dep:itym_slot", "itym_assert", "itym_util", "dep:itym_ts"] # Developer burden: "itym_ts"
 itym_ts = ["dep:itym_ts"]
 itym_util = ["dep:itym_util"]
 
@@ -29,7 +29,6 @@ alloc = ["itym_slot?/alloc"]
 std = ["alloc", "itym_slot?/std"]
 
 borsh = ["itym_slot?/borsh"]
-bytemuck = []
 serde = ["itym_slot?/serde"]
 
 [workspace]

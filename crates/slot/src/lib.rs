@@ -58,7 +58,6 @@ macro_rules! size_ne {
 
 pub mod convert;
 mod impls;
-pub mod refine;
 pub mod writer;
 
 /// For use of a [`Pod`] as the buffer of a [`Slot`].
@@ -67,7 +66,9 @@ pub mod writer;
 pub struct ByPod<T: Pod>(pub T);
 
 unsafe impl<T: Pod> ForeignSlotInit for ByPod<T> {}
+
 unsafe impl<T: Pod> Pod for ByPod<T> {}
+
 unsafe impl<T: Pod> Zeroable for ByPod<T> {}
 
 /// Byte-array using pod ("plain old data") as the underlying buffer.
@@ -79,26 +80,29 @@ pub struct Slot<T>(MaybeUninit<T>);
 
 impl<T: Pod> Slot<ByPod<T>> {
 	pub const fn new(pod: T) -> Self {
-		const_assert!(const { size!(Self) < isize::MAX as usize });
-		const_assert!(const { align_of::<T>() == 1 });
+		const_assert!(const { Self::LEN < isize::MAX as usize });
+		const_assert!(const { align_of::<Self>() == 1 });
 		Self(MaybeUninit::new(ByPod(pod)))
 	}
 
 	pub const fn zeroed() -> Self {
-		const_assert!(const { size!(Self) < isize::MAX as usize });
-		const_assert!(const { align_of::<T>() == 1 });
+		const_assert!(const { Self::LEN < isize::MAX as usize });
+		const_assert!(const { align_of::<Self>() == 1 });
 		Self(MaybeUninit::zeroed())
 	}
 }
 
 impl<T> Slot<T> {
+	pub const LEN: usize = size!(Self);
+
 	/// Unrestrained version of [`Self::new_array_fill`]
 	///
 	/// # Safety
 	/// - `T` must have an alignment of 1
+	/// - `T` should always be trivial to drop, or otherwise be safe to drop
 	/// - Same requirements as [`Pod`]
 	pub const unsafe fn filled_unchecked(value: u8) -> Self {
-		const_assert!(const { size!(Self) < isize::MAX as usize });
+		const_assert!(const { Self::LEN < isize::MAX as usize });
 		const_assert_eq!(align_of::<Self>(), 1);
 		// const_assert!(!core::mem::needs_drop::<Self>());
 
@@ -109,16 +113,23 @@ impl<T> Slot<T> {
 		slot
 	}
 
+	/// # Safety
+	/// - `T` must have an alignment of 1
+	/// - Same requirements as [`Pod`]
+	pub const unsafe fn new_unchecked(buffer: MaybeUninit<T>) -> Self {
+		const_assert!(const { Self::LEN < isize::MAX as usize });
+		const_assert_eq!(align_of::<Self>(), 1);
+		Self(buffer)
+	}
+
 	/// Unrestrained version of [`Self::new_array_zeroed`]
 	///
 	/// # Safety
 	/// - `T` must have an alignment of 1
 	/// - Same requirements as [`Pod`]
 	pub const unsafe fn zeroed_unchecked() -> Self {
-		const_assert!(const { size!(Self) < isize::MAX as usize });
+		const_assert!(const { Self::LEN < isize::MAX as usize });
 		const_assert_eq!(align_of::<Self>(), 1);
-		// const_assert!(!core::mem::needs_drop::<Self>());
-
 		Self(MaybeUninit::zeroed())
 	}
 
@@ -127,11 +138,21 @@ impl<T> Slot<T> {
 	/// - Contents must be filled before read.
 	/// - Same requirements as [`Pod`]
 	pub const unsafe fn uninit() -> Self {
-		const_assert!(const { size!(Self) < isize::MAX as usize });
+		const_assert!(const { Self::LEN < isize::MAX as usize });
 		const_assert_eq!(align_of::<Self>(), 1);
-		// const_assert!(!core::mem::needs_drop::<Self>());
-
 		Self(MaybeUninit::uninit())
+	}
+
+	/// # Safety
+	/// - The length of `src` must match the size of `T` exactly.
+	/// - `T` must have an alignment of 1
+	/// - Same requirements as [`Pod`]
+	pub const unsafe fn from_slice_unchecked(src: &[u8]) -> Self {
+		let mut slot = unsafe { Self::uninit() };
+
+		slot.write_slice(src);
+
+		slot
 	}
 
 	/// Returns `None` if the size does not match.
@@ -140,15 +161,11 @@ impl<T> Slot<T> {
 	/// - `T` must have an alignment of 1
 	/// - Same requirements as [`Pod`]
 	pub const unsafe fn try_from_slice(src: &[u8]) -> Option<Self> {
-		if src.len() != size!(Self) {
+		if src.len() != Self::LEN {
 			return None;
 		}
 
-		let mut slot = unsafe { Self::uninit() };
-
-		slot.write_slice(src);
-
-		Some(slot)
+		Some(unsafe { Self::from_slice_unchecked(src) })
 	}
 
 	#[inline(always)]
@@ -164,14 +181,14 @@ impl<T> Slot<T> {
 	/// # Panics
 	/// If `LEN` does not match `self.len`
 	pub const fn as_array<const LEN: usize>(&self) -> &[u8; LEN] {
-		const_assert_eq!(size!(Self), size!([u8; LEN]));
+		const_assert!(const { Self::LEN == LEN });
 		unsafe { &*self.as_ptr().cast::<[u8; LEN]>() }
 	}
 
 	/// # Panics
 	/// If `LEN` does not match `self.len`
 	pub const fn as_mut_array<const LEN: usize>(&mut self) -> &mut [u8; LEN] {
-		const_assert_eq!(size!(Self), size!([u8; LEN]));
+		const_assert!(const { Self::LEN == LEN });
 		unsafe { &mut *self.as_mut_ptr().cast::<[u8; LEN]>() }
 	}
 
@@ -205,20 +222,20 @@ impl<T> Slot<T> {
 
 	#[doc(alias("as_bytes"))]
 	pub const fn as_slice(&self) -> &[u8] {
-		unsafe { core::slice::from_raw_parts(self.as_ptr(), size!(Self)) }
+		unsafe { core::slice::from_raw_parts(self.as_ptr(), Self::LEN) }
 	}
 
 	#[doc(alias("as_bytes_mut"))]
 	pub const fn as_mut_slice(&mut self) -> &mut [u8] {
-		unsafe { core::slice::from_raw_parts_mut(self.as_mut_ptr(), size!(Self)) }
+		unsafe { core::slice::from_raw_parts_mut(self.as_mut_ptr(), Self::LEN) }
 	}
 
 	pub const fn as_slice_ptr(&self) -> *const [u8] {
-		slice_from_raw_parts(self.as_ptr(), size!(Self))
+		slice_from_raw_parts(self.as_ptr(), Self::LEN)
 	}
 
 	pub const fn as_mut_slice_ptr(&mut self) -> *mut [u8] {
-		slice_from_raw_parts_mut(self.as_mut_ptr(), size!(Self))
+		slice_from_raw_parts_mut(self.as_mut_ptr(), Self::LEN)
 	}
 
 	/// Allows copying even when `T` does not implement [`Copy`].
@@ -234,7 +251,7 @@ impl<T> Slot<T> {
 	///
 	/// Provided as this is useful in a `const` context where [`Deref::deref`] may not be available.
 	pub const fn copy_from_slice<U>(&mut self, src: &[u8]) {
-		const_debug_assert_eq!(size!(Self), src.len());
+		const_debug_assert_eq!(Self::LEN, src.len());
 		self.as_mut_slice().copy_from_slice(src);
 	}
 
@@ -274,7 +291,9 @@ impl<T> Slot<T> {
 		match char.len_utf8() {
 			1 => {
 				self.fill(char as u8);
-				self.as_mut_slice().split_at_mut(size!(Self)).1
+
+				//tail-position empty slice
+				self.as_mut_slice().split_at_mut(Self::LEN).1
 			}
 
 			2 => self._fill_char_utf8::<2>(char),
@@ -288,7 +307,9 @@ impl<T> Slot<T> {
 		match const { CHAR.len_utf8() } {
 			1 => {
 				self.fill(const { CHAR as u8 });
-				self.as_mut_slice().split_at_mut(size!(Self)).1
+
+				//tail-position empty slice
+				self.as_mut_slice().split_at_mut(Self::LEN).1
 			}
 
 			2 => self._fill_char_utf8::<2>(CHAR),
@@ -401,10 +422,10 @@ impl<T> Slot<T> {
 	pub const fn into_array_resize<const LEN: usize>(self, value: u8) -> [u8; LEN] {
 		let mut resized = unsafe { utransmute::<Self, MaybeUninit<[u8; LEN]>>(self) };
 
-		if size!(>: [u8; LEN], Self) {
-			let tail = unsafe { resized.as_mut_ptr().cast::<u8>().byte_add(size!(Self)) };
+		if const { LEN > Self::LEN } {
+			let tail = unsafe { resized.as_mut_ptr().cast::<u8>().byte_add(Self::LEN) };
 
-			unsafe { write_bytes(tail, value, LEN.strict_sub(size!(Self))) };
+			unsafe { write_bytes(tail, value, LEN.strict_sub(Self::LEN)) };
 		}
 
 		unsafe { resized.assume_init() }
@@ -412,20 +433,21 @@ impl<T> Slot<T> {
 
 	/// Same as [`Self::resize`], but for targets that are the same or smaller size.
 	pub const fn into_array_truncated<const LEN: usize>(self) -> [u8; LEN] {
-		const_assert!(const: LEN <= size!(Self));
-		self.into_array_resize(0)
+		const_assert!(LEN <= Self::LEN);
+		unsafe { utransmute::<Self, [u8; LEN]>(self) }
 	}
 
+	/// Sames as [`Self::LEN`].
 	pub const fn len(&self) -> usize {
-		size!(Self)
+		Self::LEN
 	}
 
 	/// Type state mutation joining `Slot<T>` and `Slot<U>` into `Slot<T, U>`.
 	pub const fn push<U>(self, other: Slot<U>) -> Slot<(T, U)> {
 		//TODO: use custom struct instead of tuple
 		// to ensure offsets and field ordering
-		const_assert!(const: size!(Slot<(T, U)>) < isize::MAX as usize);
-		const_assert_eq!(const: size!(+: Self, Slot<U>), size!(Slot<(T, U)>));
+		const_assert!(const: Slot::<(T, U)>::LEN < isize::MAX as usize);
+		const_assert_eq!(const: Self::LEN + Slot::<U>::LEN, Slot::<(T, U)>::LEN);
 
 		unsafe { utransmute((self, other)) }
 	}
@@ -435,9 +457,9 @@ impl<T> Slot<T> {
 		let mut resized = unsafe { utransmute::<Self, Slot<U>>(self) };
 
 		if size!(>: Slot<U>, Self) {
-			let tail = unsafe { resized.0.as_mut_ptr().cast::<u8>().byte_add(size!(Self)) };
+			let tail = unsafe { resized.0.as_mut_ptr().cast::<u8>().byte_add(Self::LEN) };
 
-			unsafe { write_bytes(tail, value, size!(Slot<U>).strict_sub(size!(Self))) };
+			unsafe { write_bytes(tail, value, size!(Slot<U>).strict_sub(Self::LEN)) };
 		}
 
 		resized
@@ -461,7 +483,7 @@ impl<T> Slot<T> {
 
 	/// Same as [`Self::resize`], but for targets that are the same or smaller size.
 	pub const fn truncated<U>(self) -> Slot<U> {
-		const_assert!(size!(Slot<U>) <= size!(Self));
+		const_assert!(const { Slot::<U>::LEN <= Self::LEN });
 		self.resize(0)
 	}
 
@@ -475,8 +497,15 @@ impl<T> Slot<T> {
 	/// # Panics
 	/// If `position >= len`.
 	pub const fn write_byte_at(&mut self, position: usize, value: u8) {
-		const_assert!(position < size!(Self));
+		const_assert!(position < Self::LEN);
 		unsafe { self.as_mut_ptr().add(position).write(value) };
+	}
+
+	/// # Panics
+	/// If `count > len`.
+	pub const fn write_bytes(&mut self, value: u8, count: usize) {
+		const_assert!(count <= Self::LEN);
+		unsafe { write_bytes(self.as_mut_ptr(), value, count) }
 	}
 
 	/// Writes `src` into the slot, leaving trailing bytes untouched.
@@ -505,7 +534,7 @@ impl<T, U> Slot<(T, U)> {
 	pub const fn pop(self) -> (Slot<T>, Slot<U>) {
 		//TODO: use custom struct instead of tuple
 		// to ensure offsets and field ordering
-		const_assert_eq!(const: size!(+: Slot<T>, Slot<U>), size!(Self));
+		const_assert_eq!(const: Slot::<T>::LEN + Slot::<U>::LEN, Self::LEN);
 
 		unsafe { utransmute(self) }
 	}
@@ -528,6 +557,10 @@ impl<const LEN: usize> Slot<[u8; LEN]> {
 	/// ```
 	pub const fn lit(byte_literal: &'static [u8; LEN]) -> Self {
 		Self(MaybeUninit::new(*byte_literal))
+	}
+
+	pub const fn new_array(array: [u8; LEN]) -> Self {
+		unsafe { Self::new_unchecked(MaybeUninit::new(array)) }
 	}
 
 	pub const fn new_array_zeroed() -> Self {
@@ -624,6 +657,7 @@ impl<T> Debug for Slot<T> {
 }
 
 unsafe impl<T: Copy + 'static> Pod for Slot<T> {}
+
 unsafe impl<T: Copy> Zeroable for Slot<T> {}
 
 /// Types known to be usable as the buffer of a [`Slot`].
@@ -631,6 +665,7 @@ unsafe impl<T: Copy> Zeroable for Slot<T> {}
 pub unsafe trait ForeignSlotInit {}
 
 unsafe impl<const LEN: usize> ForeignSlotInit for [u8; LEN] {}
+
 unsafe impl<T: ForeignSlotInit, U: ForeignSlotInit> ForeignSlotInit for (T, U) {}
 
 #[test]
