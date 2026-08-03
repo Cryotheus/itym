@@ -19,7 +19,7 @@ macro_rules! gen_monad {
 			use core::cmp::Ordering;
 			use core::ptr;
 
-			#[doc = concat!("Trims the ending `", $byte, "` bytes off `T` before usage.")]
+			#[doc = concat!("Trims the ending `", ::core::stringify!($byte), "` bytes off `T` before usage.")]
 			#[derive(Clone, Copy)]
 			#[repr(transparent)]
 			pub struct $ident<T: ?Sized>(pub T);
@@ -83,8 +83,8 @@ macro_rules! gen_monad {
 					Ok(())
 				}
 
-				#[doc = concat!("Head never ends in `'\\x", $byte, "'`,")]
-				#[doc = concat!("tail is always 0 or more repititions of `'\\x", $byte, "'`.")]
+				#[doc = concat!("Head never ends in `'\\x", ::core::stringify!($byte), "'`,")]
+				#[doc = concat!("tail is always 0 or more repititions of `'\\x", ::core::stringify!($byte), "'`.")]
 				pub const fn const_split_terminator(&self) -> (&[u8], &[u8]) {
 					self.0.split_at(self.const_len())
 				}
@@ -155,8 +155,8 @@ macro_rules! gen_monad {
 					Ok(())
 				}
 
-				#[doc = concat!("Head never ends in `'\\x", $byte, "'`,")]
-				#[doc = concat!("tail is always 0 or more repititions of `'\\x", $byte, "'`.")]
+				#[doc = concat!("Head never ends in `'\\x", ::core::stringify!($byte), "'`,")]
+				#[doc = concat!("tail is always 0 or more repititions of `'\\x", ::core::stringify!($byte), "'`.")]
 				pub const fn const_split_terminator(&self) -> (&str, &str) {
 					self.0.split_at(self.const_len())
 				}

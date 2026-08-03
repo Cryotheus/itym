@@ -11,6 +11,7 @@ use core::str::Utf8Error;
 use itym_assert::ensure_eq;
 use itym_slot::Slot;
 
+/// `str` slice with a length matching the exact size of `T`.
 #[derive(Clone, Copy)]
 #[repr(transparent)]
 pub struct SlotStr<T>(pub(crate) Slot<T>);
