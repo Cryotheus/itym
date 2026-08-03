@@ -10,20 +10,11 @@ Exact crate goals are tentative
 
 ## Features
 
-Any enabled `itym_*` feature also enables the features of their dependencies,
-unless doing so increases burden on:
-
-- The build system.
-	- in the form of increased compile times
-- The developer.
-	- In the form of overlapping identifiers causing erroneous auto-imports
-
-Exceptions are in place for crates which are nominally undesired.
-
 | Feature       | Purpose                                 |
 |---------------|-----------------------------------------|
 | `itym_assert` | Re-exports `itym_assert`                |
 | `itym_slot`   | Re-exports `itym_slot`                  |
+| `itym_str`    | Re-exports `itym_str`                   |
 | `itym_ts`     | Re-exports `itym_ts`                    |
 | `itym_util`   | Re-exports `itym_util`                  |
 |               |                                         |

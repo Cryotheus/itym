@@ -16,6 +16,7 @@ macro_rules! export {
 export! {
 	itym_assert as assert if "itym_assert",
 	itym_slot as slot if "itym_slot",
+	itym_str as str if "itym_str",
 	itym_ts as ts if "itym_ts",
 	itym_util as util if "itym_util",
 }
