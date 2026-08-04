@@ -13,8 +13,8 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-itym_assert.workspace = true
-itym_util.workspace = true
+itym_assert = { path = "../assert", version = "0.1.2", default-features = false }
+itym_util = { path = "../util", version = "0.1.2", default-features = false }
 
 borsh = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
