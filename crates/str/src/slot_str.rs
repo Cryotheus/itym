@@ -103,7 +103,7 @@ impl<T> SlotStr<T> {
 	// INLINE: It's unlikely both `push_terminated` and `push_nul_terminated` are used together in the same binary
 	// even if they are, the penalty of the nested function call is worse than a second inlining of this fn body
 	#[inline(always)]
-	const unsafe fn push_term<U>(self, slot_u: SlotStr<U>, len_t: usize, len_u: usize) -> SlotStr<(T, U)> {
+	const unsafe fn _push_terminated_body<U>(self, slot_u: SlotStr<U>, len_t: usize, len_u: usize) -> SlotStr<(T, U)> {
 		let slot_t = self;
 		let mut slot_str = slot_t.push(slot_u);
 
@@ -126,7 +126,7 @@ impl<T> SlotStr<T> {
 		let len_t = AsNulTerminated::new_ref(self.as_bytes()).const_len();
 		let len_u = AsNulTerminated::new_ref(item.as_bytes()).const_len();
 
-		unsafe { self.push_term(item, len_t, len_u) }
+		unsafe { self._push_terminated_body(item, len_t, len_u) }
 	}
 
 	/// Adjusts the contents similar to [`AsTerminated::<str>::const_push_str`].
@@ -134,7 +134,7 @@ impl<T> SlotStr<T> {
 		let len_t = AsTerminated::new_ref(self.as_bytes()).const_len();
 		let len_u = AsTerminated::new_ref(item.as_bytes()).const_len();
 
-		unsafe { self.push_term(item, len_t, len_u) }
+		unsafe { self._push_terminated_body(item, len_t, len_u) }
 	}
 }
 

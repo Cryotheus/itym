@@ -25,3 +25,11 @@ std = ["alloc", "itym_slot/std"]
 
 borsh = ["dep:borsh", "itym_slot/borsh"]
 serde = ["dep:serde", "itym_slot/serde"]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = [
+	"-Zunstable-options",
+	"--generate-link-to-definition",
+	"--generate-macro-expansion",
+]

@@ -1,0 +1,16 @@
+[package]
+name = "itym_tuple"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95.0"
+
+description = ""
+categories = []
+keywords = []
+
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+
+

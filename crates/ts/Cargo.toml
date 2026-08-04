@@ -14,8 +14,25 @@ repository.workspace = true
 [dependencies]
 
 [features]
-default = []
+default = ["size_common"]
+
+# Allow casting `n64` to `nsize` during const eval.
+# Overflow emits a compile error.
+size_big = ["size_common"]
+
+# Allow casting `n32` to `nsize` during const eval
+# Overflow emits a compile error.
+size_common = []
 
 # Nightly toolchain only
 f16 = []
 f128 = []
+
+[package.metadata.docs.rs]
+features = ["size_big", "size_common"]
+rustdoc-args = [
+	"-Zunstable-options",
+	"--generate-link-to-definition",
+	"--generate-macro-expansion",
+]
+
