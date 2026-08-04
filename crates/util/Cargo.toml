@@ -7,7 +7,6 @@ rust-version = "1.95.0"
 description = "Dependency of other Itym crates."
 categories = ["no-std::no-alloc"]
 # No keywords.
-exclude = ["description.md"]
 
 license.workspace = true
 repository.workspace = true

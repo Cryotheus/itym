@@ -1,19 +1,23 @@
+/// `struct`
 pub unsafe trait StructSchema {
 	type Size;
 }
 
+/// `enum`
 pub unsafe trait EnumSchema {
 	type Size;
 
 	const VARIANTS: u16;
 }
 
+/// `union`
 pub unsafe trait UnionSchema {
 	type Size;
 
 	const VARIANTS: u16;
 }
 
+/// `(T0, ...)`
 pub unsafe trait TupleSchema {
 	const LEN: usize;
 }
@@ -39,6 +43,7 @@ unsafe impl TupleSchemaPush for () {
 	type Pushed<A> = (A,);
 }
 
+// macro template
 unsafe impl<T0> TupleSchema for (T0,) {
 	const LEN: usize = 1;
 }

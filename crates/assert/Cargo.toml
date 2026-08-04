@@ -7,7 +7,6 @@ rust-version = "1.95.0"
 description = "Offers `const_assert!` and unsafe hint macros."
 categories = ["no-std::no-alloc", "development-tools::debugging", "rust-patterns"]
 keywords = ["const", "const_assert", "no_std"]
-exclude = ["description.md"]
 
 license.workspace = true
 repository.workspace = true
