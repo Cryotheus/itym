@@ -1,5 +1,6 @@
 //! Byte-array supporting type state and `const` mutation.
 #![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 use crate::convert::{RawSlotRef, SlotVisPub};
 use crate::writer::SlotWriter;

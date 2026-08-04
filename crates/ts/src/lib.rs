@@ -66,6 +66,7 @@
 //! All exposed types in this crate are not inhabited.
 //! Meaning: you cannot construct the types here.
 //! Instead, [`TypeValue`] offers an associated `const` for a value that might be represented by the type.
+#![cfg_attr(docsrs, feature(doc_cfg))]
 #![cfg_attr(feature = "f16", feature(f16))]
 #![cfg_attr(feature = "f128", feature(f128))]
 #![no_std]

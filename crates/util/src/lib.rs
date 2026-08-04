@@ -1,5 +1,6 @@
 //! Dependency of other Itym crates.
 #![no_std]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 /// Union transmute.
 /// Fully unchecked version of [`core::mem::transmute`].

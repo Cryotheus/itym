@@ -1,5 +1,3 @@
-#![no_std]
-
 //! Assertion and hint macros usable in `const` blocks and functions.
 //!
 //! ```rust
@@ -30,6 +28,8 @@
 //!     const_debug_assert!();
 //! }
 //! ```
+#![no_std]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 mod assert;
 mod hint;
