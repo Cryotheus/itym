@@ -14,7 +14,7 @@ repository.workspace = true
 [dependencies]
 itym_assert = { path = "crates/assert", version = "0.1.2", default-features = false, optional = true, }
 itym_slot = { path = "crates/slot", version = "0.1.2", default-features = false, optional = true, }
-itym_str = { path = "crates/str", default-features = false, optional = true, }
+itym_str = { path = "crates/str", version = "0.1.0", default-features = false, optional = true, }
 itym_ts = { path = "crates/ts", version = "0.1.1", default-features = false, optional = true, }
 itym_util = { path = "crates/util", version = "0.1.2", default-features = false, optional = true, }
 
