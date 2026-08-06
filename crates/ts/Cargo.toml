@@ -36,4 +36,3 @@ rustdoc-args = [
 	"--generate-link-to-definition",
 	"--generate-macro-expansion",
 ]
-

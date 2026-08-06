@@ -1,13 +1,7 @@
 //! See [`UniqueCouple`].
 
-use std::ops::{Deref, Index};
-
-const fn byte_occupancy(max_value: u128) -> usize {
-	let bits = max_value.ilog2() + 1;
-	let bytes = bits.div_ceil(8);
-
-	bytes as usize
-}
+use core::error::Error;
+use core::fmt::{Display, Formatter};
 
 /// A pair of two distinct values of type `T`, or a single value of `T`.
 #[derive(Debug, Clone, Copy, Ord, PartialOrd, Eq, PartialEq, Hash)]
@@ -37,17 +31,24 @@ impl<T> UniqueCouple<T> {
 	}
 }
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug)]
 pub enum CouplingError {
-	#[error("Cannot couple equivalent values")]
 	Equal,
-
-	#[error("High-part encoding overflowed")]
 	OverflowHi,
-
-	#[error("Low-part encoding overflowed")]
 	OverflowLo,
 }
+
+impl Display for CouplingError {
+	fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+		f.write_str(match self {
+			Self::Equal => "Cannot couple equivalent values",
+			Self::OverflowHi => "High-part encoding overflowed",
+			Self::OverflowLo => "Low-part encoding overflowed",
+		})
+	}
+}
+
+impl Error for CouplingError {}
 
 pub trait Coupling {
 	type Couple;
@@ -328,3 +329,11 @@ gen_signed! {
 //
 // MAX_X usize 6074000999
 // MAX_Y usize 18446744070963499500
+
+#[cfg(test)]
+const fn byte_occupancy(max_value: u128) -> usize {
+	let bits = max_value.ilog2() + 1;
+	let bytes = bits.div_ceil(8);
+
+	bytes as usize
+}

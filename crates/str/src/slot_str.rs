@@ -1,3 +1,5 @@
+//! See [`SlotStr`].
+
 use crate::slot_string::SlotString;
 use crate::terminated::{AsNulTerminated, AsTerminated};
 use core::borrow::{Borrow, BorrowMut};

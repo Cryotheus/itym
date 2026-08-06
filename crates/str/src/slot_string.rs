@@ -1,3 +1,5 @@
+//! See [`SlotString`].
+
 use crate::error::CapacityError;
 use crate::slot_str::SlotStr;
 use crate::terminated::AsTerminated;

@@ -38,7 +38,7 @@
 //!     fn juice(&mut self) {
 //!         // We don't need to assert if the type is juiceable
 //!         // `A` types which set `IsAqueous` as any type that resolves to `Bool<true>` will meet the bounds above
-//! 		// everything else emits a compile error, caught by `cargo check` and the likes
+//!         // everything else emits a compile error, caught by `cargo check` and the likes
 //!         /* code */
 //!     }
 //! }
@@ -46,7 +46,7 @@
 //! impl StrangeFruit<u32> {
 //!     fn make_raisin(self) -> StrangeFruit<i32> {
 //!         StrangeFruit((self.0 / 2) as i32 * -1)
-//! 	}
+//!     }
 //! }
 //!
 //! fn scrumptuous(mut john: StrangeFruit<u32>) {

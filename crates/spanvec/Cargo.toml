@@ -4,5 +4,4 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-num = { workspace = true, features = ["std"] }
-thiserror = { workspace = true, features = ["std"] }
+

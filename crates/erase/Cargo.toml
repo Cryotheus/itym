@@ -1,0 +1,19 @@
+[package]
+name = "itym_erase"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95.0"
+
+description = "Type-erasure specializations."
+categories = ["no-std::no-alloc"]
+
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+itym_assert = { path = "../assert", version = "0.1.2", default-features = false, features = ["shorting"] }
+itym_mem = { path = "../mem", }
+
+[features]
+default = []
+alloc = []

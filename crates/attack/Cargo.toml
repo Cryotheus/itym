@@ -1,18 +1,17 @@
 [package]
-name = "itym_util"
-version = "0.1.3"
+name = "itym_attack"
+version = "0.1.0"
 edition = "2024"
-rust-version = "1.95.0"
 
-description = "Dependency of other Itym crates."
-categories = ["no-std::no-alloc"]
-# No keywords.
+description = "Utilities intended for thin traces."
+categories = []
+keywords = []
 
 license.workspace = true
 repository.workspace = true
 
 [dependencies]
-# No depedependencies :D
+itym_slot = { path = "../slot", version = "0.1.3", features = [] }
 
 [package.metadata.docs.rs]
 all-features = true

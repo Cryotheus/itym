@@ -13,7 +13,7 @@ use core::mem::MaybeUninit;
 use core::ops::{Deref, DerefMut};
 use core::ptr::{copy_nonoverlapping, slice_from_raw_parts, slice_from_raw_parts_mut, write_bytes};
 use itym_assert::*;
-use itym_util::utransmute;
+use itym_mem::utransmute;
 
 macro_rules! size {
 	(-: $lhs:ty, $rhs:ty) => {

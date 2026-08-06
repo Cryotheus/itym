@@ -1,0 +1,24 @@
+[package]
+name = "itym_mem"
+version = "0.1.0"
+edition = "2024"
+
+description = ""
+categories = []
+keywords = []
+
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+itym_assert = { path = "../assert", version = "0.1.2", }
+itym_ts = { path = "../ts", version = "0.1.1", default-features = false, }
+itym_util = { path = "../util", version = "0.1.3", }
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = [
+	"-Zunstable-options",
+	"--generate-link-to-definition",
+	"--generate-macro-expansion",
+]

@@ -19,12 +19,19 @@ borsh = { workspace = true, features = [], optional = true }
 serde = { workspace = true, features = [], optional = true }
 
 [features]
-default = ["std"]
+default = []
 alloc = ["itym_slot/alloc"]
 std = ["alloc", "itym_slot/std"]
 
 borsh = ["dep:borsh", "itym_slot/borsh"]
 serde = ["dep:serde", "itym_slot/serde"]
+
+[dev-dependencies]
+criterion = { version = "0.8", features = ["html_reports"] }
+
+[[bench]]
+name = "vs_alloc"
+harness = false
 
 [package.metadata.docs.rs]
 all-features = true

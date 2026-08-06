@@ -1,4 +1,4 @@
-//! # Itym: str
+//! Fixed-capacity and fixed-length strings supporting const mutation.
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![no_std]
 

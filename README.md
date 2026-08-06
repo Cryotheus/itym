@@ -10,21 +10,39 @@ Exact crate goals are tentative
 
 ## Features
 
-| Feature       | Purpose                                 |
-|---------------|-----------------------------------------|
-| `itym_assert` | Re-exports `itym_assert`                |
-| `itym_slot`   | Re-exports `itym_slot`                  |
-| `itym_str`    | Re-exports `itym_str`                   |
-| `itym_ts`     | Re-exports `itym_ts`                    |
-| `itym_util`   | Re-exports `itym_util`                  |
-|               |                                         |
-| Rust          |                                         |
-| `alloc`       | Enable `liballoc` dependent features    |
-| `std`         | Enable `libstd` dependent features      |
-|               |                                         |
-| Crates (3p)   |                                         |
-| `borsh`       | `borsh` impls for enabled `itym` crates |
-| `serde`       | `serde` impls for enabled `itym` crates |
+The default feature set enables default features for other enabled sub-crates.
+
+E.g.
+
+- `itym_ts` has `size_common` in its default feature set
+- if the features `itym_ts` and `default` are enabled, `itym_ts/size_common` is enabled
+
+| Feature         | Purpose                                                                                                    |
+|-----------------|------------------------------------------------------------------------------------------------------------|
+| `itym_assert`   | Re-exports `itym_assert`                                                                                   |
+| `itym_slot`     | Re-exports `itym_slot`                                                                                     |
+| `itym_str`      | Re-exports `itym_str`                                                                                      |
+| `itym_ts`       | Re-exports `itym_ts`                                                                                       |
+| `itym_util`     | Re-exports `itym_util`                                                                                     |
+|                 |                                                                                                            |
+| Sub-crate       |                                                                                                            |
+| `enforce_32bit` | Emits a compile error if the target pointer width is less than 32 bits, and all 32-bit+ dependent features |
+| `enforce_64bit` | Emits a compile error if the target pointer width is less than 64 bits, and all 64-bit dependent features  |
+|                 |                                                                                                            |
+| `size_big`      | Enables `itym_ts/size_big`                                                                                 |
+| `size_common`   | Enables `itym_ts/size_common`                                                                              |
+|                 |                                                                                                            |
+| Rust            |                                                                                                            |
+| `alloc`         | Enable `liballoc` dependent features                                                                       |
+| `std`           | Enable `libstd` dependent features                                                                         |
+|                 |                                                                                                            |
+| Nightly         |                                                                                                            |
+| `f16`           |                                                                                                            |
+| `f128`          |                                                                                                            |
+|                 |                                                                                                            |
+| Crates (3p)     |                                                                                                            |
+| `borsh`         | `borsh` impls for enabled `itym` crates                                                                    |
+| `serde`         | `serde` impls for enabled `itym` crates                                                                    |
 
 ## Goals
 
